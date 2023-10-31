@@ -9,9 +9,13 @@ from library import serializers
 class Documents(APIView):
     def get(self, request):
         documents = models.Document.objects.all()
-        serializer = serializers.DocumentSerializer(documents, many=True)
 
-        return Response(serializer.data, status=status.HTTP_302_FOUND)
+        if(documents):
+            serializer = serializers.DocumentSerializer(documents, many=True)
+
+            return Response(serializer.data, status=status.HTTP_302_FOUND)
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
     
     def post(self, request):
         serializer = serializers.DocumentSerializer(data=request.data)
