@@ -1,47 +1,47 @@
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import api_view
+from rest_framework.views import APIView
 
 from library import models
 from library import serializers
 
-@api_view(['GET'])
-def documents(request, *args, **kwargs):
-    documents = models.Document.objects.all()
-    serializer = serializers.DocumentSerializer(documents, many=True)
+class Documents(APIView):
+    def get(self, request):
+        documents = models.Document.objects.all()
+        serializer = serializers.DocumentSerializer(documents, many=True)
 
-    return Response(serializer.data, status=status.HTTP_302_FOUND)
+        return Response(serializer.data, status=status.HTTP_302_FOUND)
+    
+    def post(self, request):
+        serializer = serializers.DocumentSerializer(data=request.data)
 
-@api_view(['POST'])
-def document_create(request, *args, **kwargs):
-    serializer = serializers.DocumentSerializer(data=request.data)
-
-    if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data)
-    else:
-        return Response(serializer.errors)
-
-@api_view(['GET', 'PUT', 'DELETE'])
-def document(request, pk):
-    try:
-        document = models.Document.objects.get(pk=pk)
-    except:
-        return Response(status=status.HTTP_404_NOT_FOUND)
-
-    if request.method == 'GET':
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        else:
+            return Response(serializer.errors, status=status.HTTP_406_NOT_ACCEPTABLE)
+        
+class Document(APIView):
+    def get(self, request, pk):
+        try:
+            document = models.Document.objects.get(id=pk)
+        except:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        
         serializer = serializers.DocumentSerializer(document)
-
         return Response(serializer.data)
     
-    if request.method == 'PUT':
+    def put(self, request, pk):
+        document = models.Document.objects.get(id=pk)
         serializer = serializers.DocumentSerializer(document, data=request.data)
 
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
-        return serializer.errors
+        return Response(serializer.errors, status=status.HTTP_406_NOT_ACCEPTABLE)
     
-    if request.method == 'DELETE':
+    def delete(self, request, pk):
+        document = models.Document.objects.get(id=pk)
         document.delete()
-        return Response(status=status.HTTP_200_OK)
+        return Response({"deleted": True}, status=status.HTTP_200_OK)

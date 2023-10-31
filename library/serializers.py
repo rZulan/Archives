@@ -5,7 +5,7 @@ from . import models
 class DocumentSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Document
-        fields = ['title', 'abstract']
+        fields = "__all__"
     
     def create(self, data):
         return models.Document.objects.create(**data)
