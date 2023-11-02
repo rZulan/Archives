@@ -32,7 +32,7 @@ class Document(APIView):
             document = models.Document.objects.get(id=pk)
         except:
             return Response(status=status.HTTP_404_NOT_FOUND)
-        
+
         serializer = serializers.DocumentSerializer(document)
         return Response(serializer.data)
     
